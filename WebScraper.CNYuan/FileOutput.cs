@@ -20,6 +20,8 @@ namespace WebScraper.CNYuan
 
         public void Create(List<Record> records)
         {
+            if (records.Count < 1) return;
+
             var currency = records.FirstOrDefault().Name;
 
             var fileName = $"{currency}_{FormConfig.StartDate}_{FormConfig.EndDate}";

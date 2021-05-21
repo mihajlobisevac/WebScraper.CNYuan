@@ -19,7 +19,7 @@ namespace WebScraper.CNYuan
             IConfiguration configuration = serviceProvider.GetService<IConfiguration>();
             FileOutput fileOutput = new(configuration);
 
-            var response = GetInitialResponse();
+            var response = WebRequests.GetInitialResponse();
             var htmlDocument = response.GetHtmlDocument();
             var currencies = htmlDocument.GetCurrencies();
 
@@ -27,35 +27,16 @@ namespace WebScraper.CNYuan
 
             foreach (var currency in currencies)
             {
-                HttpWebRequest request = CreateWebRequest(UrlConstants.BankOfChina);
+                HttpWebRequest request = WebRequests.CreateWebRequest(UrlConstants.BankOfChina);
                 htmlDocument = request.GetHtmlDocumentWithData(currency);
 
                 Extensions.Output($"{currency} currency record scraping in progress...");
 
-                var listOfRows = htmlDocument.GetTableRows();
-                var numberOfPages = htmlDocument.GetNumberOfPages();
-
-                //if it takes too long to scrap all the data, set this to false
-                bool scrapAllPages = true;
-
-                if (scrapAllPages && numberOfPages > 1)
-                {
-                    for (int pageNumber = 2; pageNumber <= numberOfPages; pageNumber++)
-                    {
-                        HttpWebRequest newRequest = CreateWebRequest(UrlConstants.BankOfChina);
-                        htmlDocument = newRequest.GetHtmlDocumentWithData(currency, pageNumber);
-                        listOfRows.AddRange(htmlDocument.GetTableRows());
-                    }
-                }
-
-                var records = listOfRows.ToListOfRecords();
+                var records = htmlDocument.GetRecords(currency);
 
                 Extensions.Output($"{currency} currency record scraping finished... {records.Count} records scrapped");
 
-                if (records.Count > 0)
-                {
-                    fileOutput.Create(records);
-                }
+                fileOutput.Create(records);
             }
 
             serviceProvider.Dispose();
@@ -96,33 +77,6 @@ namespace WebScraper.CNYuan
             serviceCollection.AddSingleton(configuration);
 
             return serviceCollection.BuildServiceProvider();
-        }
-
-        private static HttpWebResponse GetInitialResponse()
-        {
-            HttpWebRequest request = CreateWebRequest(UrlConstants.BankOfChina);
-            return (HttpWebResponse)request.GetResponse();
-        }
-
-        private static HttpWebRequest CreateWebRequest(string url)
-        {
-            HttpWebRequest request;
-
-            try
-            {
-                request = (HttpWebRequest)WebRequest.Create(url);
-            }
-            catch (UriFormatException)
-            {
-                request = null;
-            }
-
-            if (request == null)
-            {
-                throw new ApplicationException("Invalid URL: " + url);
-            }
-
-            return request;
         }
     }
 }

@@ -129,6 +129,27 @@ namespace WebScraper.CNYuan.Common
                 .ToList();
         }
 
+        public static List<Record> GetRecords(this HtmlDocument htmlDocument, string currency)
+        {
+            var listOfRows = htmlDocument.GetTableRows();
+            var numberOfPages = htmlDocument.GetNumberOfPages();
+
+            //if it takes too long to scrap all the data, set this to false
+            bool scrapAllPages = true;
+
+            if (scrapAllPages && numberOfPages > 1)
+            {
+                for (int pageNumber = 2; pageNumber <= numberOfPages; pageNumber++)
+                {
+                    HttpWebRequest newRequest = WebRequests.CreateWebRequest(UrlConstants.BankOfChina);
+                    htmlDocument = newRequest.GetHtmlDocumentWithData(currency, pageNumber);
+                    listOfRows.AddRange(htmlDocument.GetTableRows());
+                }
+            }
+
+            return listOfRows.ToListOfRecords();
+        }
+
         public static void Output(string message)
         {
             Console.WriteLine(message);
