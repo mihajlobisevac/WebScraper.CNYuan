@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 using WebScraper.CNYuan.Common;
 
@@ -30,7 +28,7 @@ namespace WebScraper.CNYuan
                 //if it takes too long to scrap, set "scrapAllPages" parameter to false
                 var records = htmlDocument.ScrapCurrencyData(currency, true);
 
-                if(records.Count > 0) fileOutput.CreateRecordFile(records);
+                fileOutput.CreateRecordFile(records);
             }
 
             serviceProvider.Dispose();
