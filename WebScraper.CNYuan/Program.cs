@@ -27,7 +27,8 @@ namespace WebScraper.CNYuan
 
             foreach (var currency in currencies)
             {
-                var records = htmlDocument.ScrapCurrencyData(currency);
+                //if it takes too long to scrap, set "scrapAllPages" parameter to false
+                var records = htmlDocument.ScrapCurrencyData(currency, true);
 
                 if(records.Count > 0) fileOutput.CreateRecordFile(records);
             }

@@ -147,7 +147,7 @@ namespace WebScraper.CNYuan.Common
             return listOfRows.ToListOfRecords();
         }
 
-        public static List<Record> ScrapCurrencyData(this HtmlDocument htmlDocument, string currency)
+        public static List<Record> ScrapCurrencyData(this HtmlDocument htmlDocument, string currency, bool scrapAllPages)
         {
             if (htmlDocument is null)
             {
@@ -160,8 +160,7 @@ namespace WebScraper.CNYuan.Common
 
             Extensions.Output($"{currency} currency record scraping in progress...");
 
-            //if it takes too long to scrap, set "scrapAllPages" parameter to false
-            var records = htmlDocument.GetRecords(currency, true);
+            var records = htmlDocument.GetRecords(currency, scrapAllPages);
 
             Extensions.Output($"{currency} currency record scraping finished... {records.Count} records scrapped");
 
