@@ -18,7 +18,7 @@ namespace WebScraper.CNYuan
             _configuration = configuration;
         }
 
-        public void Create(List<Record> records)
+        public void CreateRecordFile(List<Record> records)
         {
             if (records.Count < 1) return;
 

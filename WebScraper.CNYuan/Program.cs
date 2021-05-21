@@ -27,16 +27,9 @@ namespace WebScraper.CNYuan
 
             foreach (var currency in currencies)
             {
-                HttpWebRequest request = WebRequests.CreateWebRequest(UrlConstants.BankOfChina);
-                htmlDocument = request.GetHtmlDocumentWithData(currency);
+                var records = htmlDocument.ScrapCurrencyData(currency);
 
-                Extensions.Output($"{currency} currency record scraping in progress...");
-
-                var records = htmlDocument.GetRecords(currency);
-
-                Extensions.Output($"{currency} currency record scraping finished... {records.Count} records scrapped");
-
-                fileOutput.Create(records);
+                if(records.Count > 0) fileOutput.CreateRecordFile(records);
             }
 
             serviceProvider.Dispose();

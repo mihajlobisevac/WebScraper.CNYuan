@@ -1,6 +1,9 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
+using System.Collections.Generic;
 using System.Net;
 using WebScraper.CNYuan.Common;
+using WebScraper.CNYuan.Models;
 
 namespace WebScraper.CNYuan
 {

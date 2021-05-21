@@ -129,13 +129,10 @@ namespace WebScraper.CNYuan.Common
                 .ToList();
         }
 
-        public static List<Record> GetRecords(this HtmlDocument htmlDocument, string currency)
+        public static List<Record> GetRecords(this HtmlDocument htmlDocument, string currency, bool scrapAllPages)
         {
             var listOfRows = htmlDocument.GetTableRows();
             var numberOfPages = htmlDocument.GetNumberOfPages();
-
-            //if it takes too long to scrap all the data, set this to false
-            bool scrapAllPages = true;
 
             if (scrapAllPages && numberOfPages > 1)
             {
@@ -148,6 +145,27 @@ namespace WebScraper.CNYuan.Common
             }
 
             return listOfRows.ToListOfRecords();
+        }
+
+        public static List<Record> ScrapCurrencyData(this HtmlDocument htmlDocument, string currency)
+        {
+            if (htmlDocument is null)
+            {
+                Extensions.Output($"[Error] Unable to scrap data: 'HtmlDocument' is null");
+                return null;
+            }
+
+            HttpWebRequest request = WebRequests.CreateWebRequest(UrlConstants.BankOfChina);
+            htmlDocument = request.GetHtmlDocumentWithData(currency);
+
+            Extensions.Output($"{currency} currency record scraping in progress...");
+
+            //if it takes too long to scrap, set "scrapAllPages" parameter to false
+            var records = htmlDocument.GetRecords(currency, true);
+
+            Extensions.Output($"{currency} currency record scraping finished... {records.Count} records scrapped");
+
+            return records;
         }
 
         public static void Output(string message)
