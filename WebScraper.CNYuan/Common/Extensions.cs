@@ -46,18 +46,24 @@ namespace WebScraper.CNYuan.Common
             {
                 if (row.Count == 7)
                 {
-                    var record = new Record
+                    try
                     {
-                        Name = row[0],
-                        BuyingRate = float.Parse(row[1]),
-                        CashBuyingRate = float.Parse(row[2]),
-                        SellingRate = float.Parse(row[3]),
-                        CashSellingRate = float.Parse(row[4]),
-                        MiddleRate = float.Parse(row[5]),
-                        PubTime = Convert.ToDateTime(row[6])
-                    };
-
-                    records.Add(record);
+                        var record = new Record
+                        {
+                            Name = row[0],
+                            BuyingRate = float.Parse(row[1]),
+                            CashBuyingRate = float.Parse(row[2]),
+                            SellingRate = float.Parse(row[3]),
+                            CashSellingRate = float.Parse(row[4]),
+                            MiddleRate = float.Parse(row[5]),
+                            PubTime = Convert.ToDateTime(row[6])
+                        };
+                        records.Add(record);
+                    }
+                    catch (Exception ex)
+                    {
+                        Extensions.Output($"[Error] Unable to add record: {ex.Message}");
+                    }
                 }
             }
 
@@ -121,6 +127,11 @@ namespace WebScraper.CNYuan.Common
                 .Where(node => !node.GetAttributeValue("value", "").Equals("0"))
                 .Select(x => x.InnerHtml)
                 .ToList();
+        }
+
+        public static void Output(string message)
+        {
+            Console.WriteLine(message);
         }
     }
 }
