@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.IO;
 using System.Threading.Tasks;
-using WebScraper.CNYuan.Common;
+using WebScraper.CNYuan.Services;
 
 namespace WebScraper.CNYuan
 {
@@ -12,27 +12,13 @@ namespace WebScraper.CNYuan
         static async Task Main(string[] args)
         {
             using IHost host = CreateHostBuilder(args).Build();
-
             ServiceProvider serviceProvider = RegisterServices(args);
             IConfiguration configuration = serviceProvider.GetService<IConfiguration>();
             FileOutput fileOutput = new(configuration);
 
-            var response = WebRequests.GetInitialResponse();
-            var htmlDocument = response.GetHtmlDocument();
-            var currencies = htmlDocument.GetCurrencies();
-
-            Extensions.Output($"{currencies.Count} currencies loaded...");
-
-            foreach (var currency in currencies)
-            {
-                //if it takes too long to scrap, set "scrapAllPages" parameter to false
-                var records = htmlDocument.ScrapCurrencyData(currency, true);
-
-                fileOutput.CreateRecordFile(records);
-            }
+            Scrapper.BeginScrapping(fileOutput);
 
             serviceProvider.Dispose();
-
             await host.RunAsync();
         }
 

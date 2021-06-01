@@ -39,22 +39,20 @@ namespace WebScraper.CNYuan
                     File.Delete(fullpath);
                 }
 
-                using (FileStream fs = File.Create(fullpath))
+                using FileStream fs = File.Create(fullpath);
+                byte[] header = new UTF8Encoding(true)
+                    .GetBytes("Currency Name, Buying Rate, Cash Buying Rate, Selling Rate, Cash Selling Rate, Middle Rate, Pub Time"
+                        + Environment.NewLine + Environment.NewLine);
+
+                fs.Write(header);
+
+                foreach (var r in records)
                 {
-                    byte[] header = new UTF8Encoding(true)
-                        .GetBytes("Currency Name, Buying Rate, Cash Buying Rate, Selling Rate, Cash Selling Rate, Middle Rate, Pub Time"
-                            + Environment.NewLine + Environment.NewLine);
+                    byte[] line = new UTF8Encoding(true)
+                        .GetBytes($"{r.Name}, {r.BuyingRate}, {r.CashBuyingRate}, {r.SellingRate}, {r.CashSellingRate}, {r.MiddleRate}, {r.PubTime}"
+                            + Environment.NewLine);
 
-                    fs.Write(header);
-
-                    foreach (var r in records)
-                    {
-                        byte[] line = new UTF8Encoding(true)
-                            .GetBytes($"{r.Name}, {r.BuyingRate}, {r.CashBuyingRate}, {r.SellingRate}, {r.CashSellingRate}, {r.MiddleRate}, {r.PubTime}"
-                                + Environment.NewLine);
-
-                        fs.Write(line);
-                    }
+                    fs.Write(line);
                 }
             }
             catch (Exception)
@@ -63,7 +61,7 @@ namespace WebScraper.CNYuan
             }
             finally
             {
-                Extensions.Output($"[!] Successfully created file for {currency} records");
+                GeneralExtensions.Output($"[!] Successfully created file for {currency} records");
             }
         }
     }
