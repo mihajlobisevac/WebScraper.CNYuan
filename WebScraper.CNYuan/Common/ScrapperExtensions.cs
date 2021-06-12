@@ -32,25 +32,28 @@ namespace WebScraper.CNYuan.Common
 
         public static int GetNumberOfPages(this HtmlDocument htmlDocument)
         {
-            //max amount of pages 999(?)
-            const int TRIPLE_DIGIT_MAX = 3;
-
-            //locate where page size is declared
             var pageSizeSearch = "var m_nPageSize = ";
-            var index = htmlDocument.ParsedText.IndexOf(pageSizeSearch);
+            var recordCountSearch = "var m_nRecordCount = ";
 
-            //get value after from declaration
-            var offset = index + pageSizeSearch.Length;
-            var numberOfPages = htmlDocument.ParsedText.Substring(offset, TRIPLE_DIGIT_MAX);
+            var maxRecordsPerPage = GetValueFromVarDeclaration(htmlDocument.ParsedText, pageSizeSearch);
+            var totalRecordCount = GetValueFromVarDeclaration(htmlDocument.ParsedText, recordCountSearch);
 
-            //remove non-digit chars
-            var justNumbers = new string(numberOfPages.Where(char.IsDigit).ToArray());
+            var numberOfFullPages = totalRecordCount / maxRecordsPerPage;
+            var moduo = totalRecordCount % maxRecordsPerPage;
 
-            if (justNumbers.Length < 1) return 1;
+            return moduo == 0 
+                ? numberOfFullPages 
+                : numberOfFullPages + 1;
+        }
 
-            var pageSize = Convert.ToInt32(justNumbers);
+        static int GetValueFromVarDeclaration(string htmlText, string subtext)
+        {
+            var valueStartIndex = htmlText.IndexOf(subtext) + subtext.Length;
+            var valueEndIndex = htmlText.IndexOf(';', valueStartIndex);
 
-            return pageSize == 0 ? 1 : pageSize;
+            var value = htmlText[valueStartIndex..valueEndIndex];
+
+            return Convert.ToInt32(value);
         }
 
         public static List<string> GetCurrencies(this HtmlDocument htmlDocument)
