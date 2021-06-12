@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using WebScraper.CNYuan.Common;
 using WebScraper.CNYuan.Models;
 
@@ -31,37 +30,42 @@ namespace WebScraper.CNYuan
 
             var fullpath = path + fileName + ext;
 
+
+            if (Directory.Exists(path) == false)
+            {
+                Directory.CreateDirectory(path);
+            }
+
             try
             {
-                if (File.Exists(fullpath))
-                {
-                    File.SetAttributes(fullpath, FileAttributes.Normal);
-                    File.Delete(fullpath);
-                }
-
-                using FileStream fs = File.Create(fullpath);
-                byte[] header = new UTF8Encoding(true)
-                    .GetBytes("Currency Name, Buying Rate, Cash Buying Rate, Selling Rate, Cash Selling Rate, Middle Rate, Pub Time"
-                        + Environment.NewLine + Environment.NewLine);
-
-                fs.Write(header);
-
-                foreach (var r in records)
-                {
-                    byte[] line = new UTF8Encoding(true)
-                        .GetBytes($"{r.Name}, {r.BuyingRate}, {r.CashBuyingRate}, {r.SellingRate}, {r.CashSellingRate}, {r.MiddleRate}, {r.PubTime}"
-                            + Environment.NewLine);
-
-                    fs.Write(line);
-                }
+                CreateTextFile(fullpath, records);
             }
             catch (Exception)
             {
+                GeneralExtensions.Output($"[!] Unable to create file for {currency} records");
                 throw;
             }
             finally
             {
                 GeneralExtensions.Output($"[!] Successfully created file for {currency} records");
+            }
+        }
+
+        static void CreateTextFile(string filePath, List<Record> records)
+        {
+            if (File.Exists(filePath))
+            {
+                File.SetAttributes(filePath, FileAttributes.Normal);
+                File.Delete(filePath);
+            }
+
+            using StreamWriter sw = File.CreateText(filePath);
+
+            sw.WriteLine("Currency Name, Buying Rate, Cash Buying Rate, Selling Rate, Cash Selling Rate, Middle Rate, Pub Time" + Environment.NewLine);
+
+            foreach (var r in records)
+            {
+                sw.WriteLine($"{r.Name}, {r.BuyingRate}, {r.CashBuyingRate}, {r.SellingRate}, {r.CashSellingRate}, {r.MiddleRate}, {r.PubTime}");
             }
         }
     }

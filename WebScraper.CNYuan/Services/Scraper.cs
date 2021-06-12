@@ -47,7 +47,7 @@ namespace WebScraper.CNYuan.Services
             return records;
         }
 
-        public static List<Record> GetRecords(this HtmlDocument htmlDocument, string currency, bool scrapeAllPages = true)
+        public static List<Record> GetRecords(this HtmlDocument htmlDocument, string currency, bool scrapeAllPages = false)
         {
             var listOfRows = htmlDocument.GetDataByTableRows();
             var numberOfPages = htmlDocument.GetNumberOfPages();
