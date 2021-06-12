@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace WebScraper.CNYuan.Common
 {
-    public static class ScrapperExtensions
+    public static class ScraperExtensions
     {
         public static List<List<string>> GetDataByTableRows(this HtmlDocument htmlDocument)
         {
@@ -48,8 +48,14 @@ namespace WebScraper.CNYuan.Common
 
         static int GetValueFromVarDeclaration(string htmlText, string subtext)
         {
-            var valueStartIndex = htmlText.IndexOf(subtext) + subtext.Length;
+            var subtextIndex = htmlText.IndexOf(subtext);
+
+            if (subtextIndex < 1) return 1;
+
+            var valueStartIndex = subtextIndex + subtext.Length;
             var valueEndIndex = htmlText.IndexOf(';', valueStartIndex);
+
+            if (valueEndIndex < 1) return 1;
 
             var value = htmlText[valueStartIndex..valueEndIndex];
 

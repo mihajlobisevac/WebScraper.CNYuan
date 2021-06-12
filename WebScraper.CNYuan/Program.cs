@@ -15,7 +15,7 @@ namespace WebScraper.CNYuan
             var serviceProvider = RegisterServices(args);
             var configuration = serviceProvider.GetService<IConfiguration>();
 
-            Scrapper.BeginScrapping(configuration);
+            Scraper.BeginScraping(configuration);
 
             serviceProvider.Dispose();
             await host.RunAsync();
