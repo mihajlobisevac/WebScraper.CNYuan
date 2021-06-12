@@ -12,11 +12,10 @@ namespace WebScraper.CNYuan
         static async Task Main(string[] args)
         {
             using IHost host = CreateHostBuilder(args).Build();
-            ServiceProvider serviceProvider = RegisterServices(args);
-            IConfiguration configuration = serviceProvider.GetService<IConfiguration>();
-            FileOutput fileOutput = new(configuration);
+            var serviceProvider = RegisterServices(args);
+            var configuration = serviceProvider.GetService<IConfiguration>();
 
-            Scrapper.BeginScrapping(fileOutput);
+            Scrapper.BeginScrapping(configuration);
 
             serviceProvider.Dispose();
             await host.RunAsync();
@@ -28,33 +27,32 @@ namespace WebScraper.CNYuan
                 {
                     configuration.Sources.Clear();
 
-                    IHostEnvironment env = hostingContext.HostingEnvironment;
+                    var envName = hostingContext.HostingEnvironment.EnvironmentName;
 
                     configuration
-                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true);
+                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile($"appsettings.{envName}.json", true, true);
 
                     IConfigurationRoot configurationRoot = configuration.Build();
                 });
 
-        private static IConfiguration SetupConfiguration(string[] args)
+        static IConfiguration SetupConfiguration(string[] args)
         {
             return new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .AddCommandLine(args)
                 .Build();
         }
 
-        private static ServiceProvider RegisterServices(string[] args)
+        static ServiceProvider RegisterServices(string[] args)
         {
-            IConfiguration configuration = SetupConfiguration(args);
-            var serviceCollection = new ServiceCollection();
+            var configuration = SetupConfiguration(args);
 
-            serviceCollection.AddSingleton(configuration);
-
-            return serviceCollection.BuildServiceProvider();
+            return new ServiceCollection()
+                .AddSingleton(configuration)
+                .BuildServiceProvider();
         }
     }
 }

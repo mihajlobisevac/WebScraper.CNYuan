@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Net;
 using WebScraper.CNYuan.Common;
@@ -8,8 +9,10 @@ namespace WebScraper.CNYuan.Services
 {
     public static class Scrapper
     {
-        public static void BeginScrapping(FileOutput fileOutput)
+        public static void BeginScrapping(IConfiguration configuration)
         {
+            var fileOutput = new FileOutput(configuration);
+
             var htmlDocument = WebRequestsResponses
                 .GetInitialResponse()
                 .GetHtmlDocument();
@@ -20,7 +23,7 @@ namespace WebScraper.CNYuan.Services
             foreach (var currency in currencies)
             {
                 //if it takes too long to scrap, set "scrapAllPages" parameter to false
-                var records = ScrapCurrencyData(currency, false);
+                var records = ScrapCurrencyData(currency, true);
 
                 fileOutput.CreateRecordFile(records);
             }
