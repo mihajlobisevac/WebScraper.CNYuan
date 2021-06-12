@@ -15,7 +15,7 @@ namespace WebScraper.CNYuan.Services
 
             foreach (var currency in currencies)
             {
-                var records = ScrapCurrencyData(currency);
+                var records = ScrapeCurrencyData(currency);
 
                 fileOutput.CreateRecordFile(records);
             }
@@ -34,7 +34,7 @@ namespace WebScraper.CNYuan.Services
             return currencies;
         }
 
-        public static List<Record> ScrapCurrencyData(string currency)
+        public static List<Record> ScrapeCurrencyData(string currency)
         {
             GeneralExtensions.Output($"{currency} currency record scraping in progress...");
 
@@ -47,20 +47,20 @@ namespace WebScraper.CNYuan.Services
             return records;
         }
 
-        public static List<Record> GetRecords(this HtmlDocument htmlDocument, string currency, bool scrapAllPages = true)
+        public static List<Record> GetRecords(this HtmlDocument htmlDocument, string currency, bool scrapeAllPages = true)
         {
             var listOfRows = htmlDocument.GetDataByTableRows();
             var numberOfPages = htmlDocument.GetNumberOfPages();
 
-            if (scrapAllPages && numberOfPages > 1)
+            if (scrapeAllPages && numberOfPages > 1)
             {
-                ScrapRemainingPages(listOfRows, numberOfPages, currency);
+                ScrapeRemainingPages(listOfRows, numberOfPages, currency);
             }
 
             return listOfRows.ToListOfRecords();
         }
 
-        static void ScrapRemainingPages(List<List<string>> listOfRows, int numberOfPages, string currency)
+        static void ScrapeRemainingPages(List<List<string>> listOfRows, int numberOfPages, string currency)
         {
             for (int pageNumber = 2; pageNumber <= numberOfPages; pageNumber++)
             {
